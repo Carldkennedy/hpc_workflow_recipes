@@ -1,1 +1,1 @@
-# hpc_workflow_recipes
+# HPC Workflow Recipes
