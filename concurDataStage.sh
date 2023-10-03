@@ -10,7 +10,7 @@ flag_file="/path/to/flag_file"
 submissions=("script1.sh" "script2.sh variable")
 ########################################################################
 
-# Submit the initial job and get the Job ID
+# Submit the initial job and get the Job ID - edit resource request if required
 init_jid=$(sbatch --time=01:00:00 --mem=5G shared_to_hpc.sh $storage_user $from_storage $to_cluster | awk '{print $4}')
 
 # Wait for the flag file to be written by shared_to_hpc.sh
@@ -32,7 +32,7 @@ if grep -q "SUCCESS" $flag_file; then
   done
   dependency=${dependency%:}  # Remove the trailing colon
 
-  # Send data back once all jobs complete
+  # Send data back once all jobs complete - edit resource request if required
   sbatch --dependency=afterany:$dependency --time=01:00:00 --mem=5G hpc_to_shared.sh $from_cluster $to_storage
 else
   echo "Data transfer failed. Not submitting dependent jobs."
