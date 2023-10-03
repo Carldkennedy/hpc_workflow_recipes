@@ -11,7 +11,7 @@ submissions=("script1.sh variable" "script2.sh")
 ########################################################################
 
 # Submit the initial job and get the Job ID
-init_jid=$(sbatch shared_to_hpc.sh $storage_user $from_storage $to_cluster | awk '{print $4}')
+init_jid=$(sbatch --time=01:00:00 --mem=5G shared_to_hpc.sh $storage_user $from_storage $to_cluster | awk '{print $4}')
 
 # Wait for the flag file to be written by shared_to_hpc.sh
 while [[ ! -e $flag_file ]]; do
@@ -33,7 +33,7 @@ if grep -q "SUCCESS" $flag_file; then
   dependency=${dependency%:}  # Remove the trailing colon
 
   # Send data back once all jobs complete
-  sbatch --dependency=afterany:$dependency hpc_to_shared.sh $from_cluster $to_storage
+  sbatch --dependency=afterany:$dependency --time=01:00:00 --mem=5G hpc_to_shared.sh $from_cluster $to_storage
 else
   echo "Data transfer failed. Not submitting dependent jobs."
   exit 1
