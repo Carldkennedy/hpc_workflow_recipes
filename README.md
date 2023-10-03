@@ -9,7 +9,7 @@ This repositry contains a collection of workflow recipes
 - Once all jobs completed:
     - Transfers data from hpc to shared storage
 
-## Suggested additions
+## Suggested recipes to add
 
 ### SeqDataStage
 
