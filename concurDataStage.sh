@@ -7,7 +7,7 @@ to_cluster="/path/on/cluster"
 from_cluster="/path/on/cluster"
 to_storage="/path/on/hpc"
 flag_file="/path/to/flag_file"
-submissions=("script1.sh variable" "script2.sh")
+submissions=("script1.sh" "script2.sh variable")
 ########################################################################
 
 # Submit the initial job and get the Job ID
