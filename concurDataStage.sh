@@ -1,30 +1,40 @@
 #!/bin/bash
 
-########################## Retrieve and Send ###########################
+########################## Edit as required #############################
 storage_user="some_user"
 from_storage="/path/on/storage"
 to_cluster="/path/on/cluster"
 from_cluster="/path/on/cluster"
 to_storage="/path/on/hpc"
-
+flag_file="/path/to/flag_file"
+submissions=("script1.sh variable" "script2.sh")
 ########################################################################
 
-submissions=("script1.sh variabe" "script2.sh")
-
+# Submit the initial job and get the Job ID
 init_jid=$(sbatch shared_to_hpc.sh $storage_user $from_storage $to_cluster | awk '{print $4}')
 
-for sub in "${submissions[@]}"; do
-  jid=$(sbatch --dependency=afterok:$init_jid "$sub" | awk '{print $4}')
-  job_ids+=($jid)
+# Wait for the flag file to be written by shared_to_hpc.sh
+while [[ ! -e $flag_file ]]; do
+  sleep 60  # wait for 60 seconds before checking again
 done
 
-# Construct the dependency string for the final job
-dependency=""
-for jid in "${job_ids[@]}"; do
-  dependency+="$jid:"
-done
-dependency=${dependency%:}  # Remove the trailing colon
+# Check whether the transfer was successful
+if grep -q "SUCCESS" $flag_file; then
+  for sub in "${submissions[@]}"; do
+    jid=$(sbatch --dependency=afterok:$init_jid "$sub" | awk '{print $4}')
+    job_ids+=($jid)
+  done
 
-# Send data back once all jobs complete
-sbatch --dependency=afterany:$dependency hpc_to_shared.sh $from_cluster $to_storage
+  # Construct the dependency string for the final job
+  dependency=""
+  for jid in "${job_ids[@]}"; do
+    dependency+="$jid:"
+  done
+  dependency=${dependency%:}  # Remove the trailing colon
 
+  # Send data back once all jobs complete
+  sbatch --dependency=afterany:$dependency hpc_to_shared.sh $from_cluster $to_storage
+else
+  echo "Data transfer failed. Not submitting dependent jobs."
+  exit 1
+fi
