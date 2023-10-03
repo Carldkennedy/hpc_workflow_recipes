@@ -5,7 +5,7 @@ storage_user="some_user"
 from_storage="/path/on/storage"
 to_cluster="/path/on/cluster"
 from_cluster="/path/on/cluster"
-to_storage="/path/on/hpc"
+to_storage="/path/on/storage"
 flag_file="/path/to/flag_file"
 submissions=("script1.sh" "script2.sh variable")
 ########################################################################
