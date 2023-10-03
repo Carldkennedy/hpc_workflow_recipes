@@ -1,13 +1,17 @@
 #!/bin/bash
 
 ########################## Retrieve and Send ###########################
-from_storage="path/on/storage"
-to_storage="path/on/hpc"
+storage_user="some_user"
+from_storage="/path/on/storage"
+to_cluster="/path/on/cluster"
+from_cluster="/path/on/cluster"
+to_storage="/path/on/hpc"
+
 ########################################################################
 
 submissions=("script1.sh variabe" "script2.sh")
 
-init_jid=$(sbatch shared_to_hpc.sh $from_storage | awk '{print $4}')
+init_jid=$(sbatch shared_to_hpc.sh $storage_user $from_storage $to_cluster | awk '{print $4}')
 
 for sub in "${submissions[@]}"; do
   jid=$(sbatch --dependency=afterok:$init_jid "$sub" | awk '{print $4}')
@@ -22,4 +26,5 @@ done
 dependency=${dependency%:}  # Remove the trailing colon
 
 # Send data back once all jobs complete
-sbatch --dependency=afterany:$dependency hpc_to_cluster.sh $to_storage
+sbatch --dependency=afterany:$dependency hpc_to_shared.sh $from_cluster $to_storage
+
