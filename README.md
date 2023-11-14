@@ -30,12 +30,12 @@ These variables are used in the examples below.
 ### Interactive usage
 
 Usage:
-```
+```shell
 transfer-files.sh SOURCE DESTINATION
 ```
 
 Example:
-```
+```shell
 transfer-files.sh ${shared}/some/path/ ${working_dir}/some/path/
 ```
 
@@ -43,15 +43,15 @@ transfer-files.sh ${shared}/some/path/ ${working_dir}/some/path/
 Can also be submitted to the SLURM scheduler as a job submission (ex. useful for sbatch dependencies):
 
 Usage:
-```
+```shell
 sbatch transfer-files.sh SOURCE DESTINATION
 ```
 Examples:
-```
+```shell
 sbatch transfer-files.sh ${shared}/some/path/ ${working_dir}/some/path/
 ```
 
-```
+```shell
 sbatch --time=00:20:00 transfer-files.sh ${shared}/some/path/ ${working_dir}/some/path/
 ```
 
