@@ -42,6 +42,8 @@ transfer-files.sh ${shared}/some/path/ ${working_dir}/some/path/
 ### Batch jobs
 Can also be submitted to the SLURM scheduler as a job submission (ex. useful for sbatch dependencies):
 
+Default resource requests are 4G of memory and 10 minutes. 
+
 Usage:
 ```shell
 sbatch transfer-files.sh SOURCE DESTINATION
