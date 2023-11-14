@@ -20,7 +20,7 @@ source ~/.bashrc
 > NOTE: This script does not remove files once they are synced. 
   
 Recommend assigning directories to variables. For example, create a **setup.sh** script:
-```
+```shell
 #!/bin/bash
 shared='/shared/path/to/directory/'
 working_dir='/mnt/parscartch/users/${USER}/'
