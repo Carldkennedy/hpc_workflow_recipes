@@ -66,9 +66,9 @@ Trailing Slash in Destination Directory: copies the source into that directory, 
 If you don't want the source directory to be included in the destination, use a destination path without a trailing slash: rsync source/ destination
 
 ```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
+sequenceDiagram
+    Worker Node-->>Login Node: SSH
+    Login Node-->>transfer-files: rsync
+    Shared Area->>Worker Directory: Transfer files
+    Login Node-->>Worker Node: close SSH
 ```
