@@ -5,7 +5,9 @@
 #SBATCH --time=00:10:00
 #SBATCH --output=data_staging_%j.out
 
-# - SBATCH directives are effective only when submitted with 'sbatch'; ignored in direct shell execution.
+# SBATCH directives are effective only when submitted with 'sbatch'; 
+# ignored in direct shell execution.
+
 SCRIPT_NAME=$(basename "$0")
 # Function to display usage information
 show_usage() {
