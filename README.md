@@ -66,58 +66,9 @@ Trailing Slash in Destination Directory: copies the source into that directory, 
 If you don't want the source directory to be included in the destination, use a destination path without a trailing slash: rsync source/ destination
 
 ```mermaid
-sequenceDiagram
-    participant User
-    participant Script
-    participant SLURM
-    participant Login Node
-    participant Rsync
-
-    User->>Script: Run script with SOURCE and DESTINATION arguments
-    alt Check if on worker node
-        Script->>SLURM: Check if on a worker node
-        alt Not on worker node
-            Script-->>User: Error: This script should not be run on a login node.
-        else
-            SLURM-->>Script: SLURM_NODELIST defined
-        end
-    else
-        alt Invalid argument count
-            Script-->>User: Error: Two arguments are required.
-            Script-->>User: Usage: $SCRIPT_NAME SOURCE DESTINATION
-        else
-            alt Determine OPTIONS
-                Script->>Script: Determine OPTIONS based on DESTINATION
-                alt OPTIONS determined
-                    Script-->>User: Using --no-perms due to DESTINATION
-                else
-                    Script-->>User: No additional OPTIONS
-                end
-            end
-            Script->>Script: Define login nodes
-            Script->>Script: Create shuffled list of login nodes
-            loop Check login node availability
-                Script->>Script: Select a login node
-                Script->>Login Node: SSH to selected login node
-                alt SSH successful
-                    Login Node->>Login Node: Perform rsync operation
-                    alt Rsync successful
-                        Login Node-->>Script: Rsync operation completed successfully.
-                        exit
-                    else
-                        Login Node-->>Script: Rsync operation failed. Retry in $retry_delay seconds...
-                        Login Node-->>Script: Sleep for $retry_delay seconds
-                        Script->>Script: Retry rsync operation
-                    end
-                else
-                    Script->>Script: Retry with another login node
-                end
-            end
-        end
-    end
-    alt Max retries reached
-        Script-->>User: ERROR: Rsync operation failed after $max_retries retries.
-    else
-        Script-->>User: Data transfer completed successfully
-    end
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
 ```
