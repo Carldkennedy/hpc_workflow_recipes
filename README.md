@@ -67,8 +67,8 @@ If you don't want the source directory to be included in the destination, use a 
 
 ```mermaid
 sequenceDiagram
-    Worker Node-->>Login Node: SSH
-    Login Node-->>transfer-files: rsync
-    Shared Area->>Worker Directory: Transfer files
-    Login Node-->>Worker Node: close SSH
+    WorkerNode->>LoginNode: SSH Connection
+    LoginNode->>SharedArea: Initiate rsync
+    SharedArea-->>WorkerNode: Provide files
+    WorkerNode->>LoginNode: Close SSH Connection
 ```
