@@ -69,7 +69,9 @@ If you don't want the source directory to be included in the destination, use a 
 sequenceDiagram
     participant SharedArea
     WorkerNode->>LoginNode: SSH Connection
+    activate LoginNode
     LoginNode->>SharedArea: Initiate rsync
     SharedArea-->>WorkerDirectory: Sync files
     LoginNode-->>WorkerNode: Close SSH Connection
+    deactivate LoginNode
 ```
