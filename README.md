@@ -1,17 +1,17 @@
 # HPC Workflow Recipes
 
-## file-tranfers.sh
+## file-tranfers
 
 The purpose of this script is to enable transfer of directories/files to/from shared areas whilst on a worker node, within an interactive session or batch job.
 
 ### Setup
 
-Move file-transfers.sh to ~/bin, make executable and add to .bashrc
+Move file-transfers to ~/bin, make executable and add to .bashrc
 
 ```shell
 mkdir -p ${HOME}/bin/
-mv transfer-files.sh ${HOME}/bin/transfer-files.sh 
-chmod +x ${HOME}/bin/transfer-files.sh
+mv transfer-files ${HOME}/bin/transfer-files 
+chmod +x ${HOME}/bin/transfer-files
 echo 'export PATH="$PATH:$HOME/bin"' >> ~/.bashrc
 source ~/.bashrc 
 ```
@@ -29,12 +29,12 @@ These variables are used in the examples below.
 
 Usage:
 ```shell
-transfer-files.sh SOURCE DESTINATION
+transfer-files SOURCE DESTINATION
 ```
 
 Example:
 ```shell
-transfer-files.sh ${shared}/some/path/ ${working_dir}/some/path/
+transfer-files ${shared}/some/path/ ${working_dir}/some/path/
 ```
 
 ### Batch jobs
@@ -44,15 +44,15 @@ Default resource requests are 4G of memory and 10 minutes.
 
 Usage:
 ```shell
-sbatch transfer-files.sh SOURCE DESTINATION
+sbatch transfer-files SOURCE DESTINATION
 ```
 Examples:
 ```shell
-sbatch transfer-files.sh ${shared}/some/path/ ${working_dir}/some/path/
+sbatch transfer-files ${shared}/some/path/ ${working_dir}/some/path/
 ```
 
 ```shell
-sbatch --time=00:20:00 transfer-files.sh ${shared}/some/path/ ${working_dir}/some/path/
+sbatch --time=00:20:00 transfer-files ${shared}/some/path/ ${working_dir}/some/path/
 ```
 
 > Caution: We need to be careful with trailing slashes
@@ -64,3 +64,4 @@ If you want to copy the source directory itself into the destination, without me
 Trailing Slash in Destination Directory: copies the source into that directory, preserving its name.
 
 If you don't want the source directory to be included in the destination, use a destination path without a trailing slash: rsync source/ destination
+

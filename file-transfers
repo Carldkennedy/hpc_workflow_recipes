@@ -15,13 +15,13 @@ show_usage() {
     echo -e "Example: $SCRIPT_NAME /path/to/source /path/to/destination/\n"
     exit 1
 }
-# Check not on a login node 
+# Check we're on a worker node 
 if [ -z "$SLURM_NODELIST" ]; then 
 	echo "Error: This script should not be run on a login node." 
 	exit 1 
 fi
 
-# Check if the number of arguments is not equal to 2
+# Check number of arguments is 2
 if [ $# -ne 2 ]; then
     echo -e "Error: Two arguments are required.\n"
     show_usage
