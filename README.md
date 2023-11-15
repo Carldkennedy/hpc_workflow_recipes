@@ -68,10 +68,10 @@ If you don't want the source directory to be included in the destination, use a 
 ```mermaid
 sequenceDiagram
     participant SharedArea
-    WorkerNode->>LoginNode: SSH Connection
+    WorkerNode->>LoginNode: 1.SSH Connection
     activate LoginNode
-    LoginNode->>SharedArea: Initiate rsync
-    SharedArea-->>WorkerDirectory: Sync files
-    LoginNode-->>WorkerNode: Close SSH Connection
+    LoginNode->>SharedArea: 2.Initiate rsync
+    SharedArea-->>WorkerDirectory: 3.Sync files
+    LoginNode-->>WorkerNode: 4.Close SSH Connection
     deactivate LoginNode
 ```
