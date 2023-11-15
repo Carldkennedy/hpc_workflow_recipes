@@ -4,6 +4,17 @@
 
 The purpose of this script is to enable transfer of directories/files to/from shared areas whilst on a worker node, within an interactive session or batch job.
 
+```mermaid
+sequenceDiagram
+    participant SharedArea
+    WorkerNode->>LoginNode: 1.SSH Connection
+    activate LoginNode
+    LoginNode->>SharedArea: 2.Initiate rsync
+    SharedArea-->>WorkerDirectory: 3.Sync files
+    LoginNode-->>WorkerNode: 4.Close SSH Connection
+    deactivate LoginNode
+```
+
 ### Setup
 
 Move file-transfers to ~/bin, make executable and add to .bashrc
@@ -65,13 +76,3 @@ Trailing Slash in Destination Directory: copies the source into that directory, 
 
 If you don't want the source directory to be included in the destination, use a destination path without a trailing slash: rsync source/ destination
 
-```mermaid
-sequenceDiagram
-    participant SharedArea
-    WorkerNode->>LoginNode: 1.SSH Connection
-    activate LoginNode
-    LoginNode->>SharedArea: 2.Initiate rsync
-    SharedArea-->>WorkerDirectory: 3.Sync files
-    LoginNode-->>WorkerNode: 4.Close SSH Connection
-    deactivate LoginNode
-```
