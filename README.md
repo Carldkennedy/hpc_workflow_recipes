@@ -4,8 +4,6 @@
 
 The purpose of this script is to enable transfer of directories/files to/from shared areas whilst on a worker node, within an interactive session or batch job.
 
-Flag files will be written `SUCCESS_${SLURM_JOB_D}` which can be used to confirm transfer was successful before continuing with any dependant jobs. If script is run in an interactive session then flag file will be written in format `SUCCESS_${timestamp}`.
-
 ### Setup
 
 Move file-transfers.sh to ~/bin, make executable and add to .bashrc
