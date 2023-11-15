@@ -58,13 +58,6 @@ for node in "${shuffled_nodes[@]}"; do
     fi
 done
 
-# Identifier for both interactvie and batch jobs
-if [ "$SLURM_JOB_PARTITION" == "interactive" ]; then 
-	IDENTIFIER=$(date +'%Y%m%d%H%M%S')
-else
-    IDENTIFIER=$SLURM_JOB_ID
-fi
-
 # SSH to the selected login node
 retries=0
 max_retries=3
@@ -87,13 +80,11 @@ while [ $retries -lt $max_retries ] && [ $complete -eq 0 ]; do
     "
 
     if [ $? -eq 0 ]; then
-        complete=1
-        touch SUCCESS_${IDENTIFIER}
+        complete=1  
     else
         ((retries++))
         if [ $retries -eq $max_retries ]; then
             echo \"ERROR: Rsync operation failed after $max_retries retries.\"
-            touch FAILED_${IDENTIFIER}
             exit 1
         fi
     fi
