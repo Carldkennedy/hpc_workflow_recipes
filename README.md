@@ -4,7 +4,7 @@
 
 The purpose of this script is to enable transfer of directories/files to/from shared areas whilst on a worker node, within an interactive session or batch job.
 
-`$ transfer-files SharedArea WorkerDirectory`
+`[te1st@node001 [stanage] ~]$  transfer-files SharedArea WorkerDirectory`
 
 ```mermaid
 sequenceDiagram
