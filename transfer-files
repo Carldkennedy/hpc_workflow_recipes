@@ -52,7 +52,7 @@ login_node2=stanage-login2.shef.ac.uk
 login_nodes=("$login_node1" "$login_node2")
 
 # Shuffle the array (balancing the load)
-shuffled_nodes=( "$(shuf -e "${login_nodes[@]}")" )
+shuffled_nodes=("$(shuf -e "${login_nodes[@]}")")
 
 # Loop through the shuffled nodes and check their availability
 for node in "${shuffled_nodes[@]}"; do
@@ -81,7 +81,7 @@ while [ $retries -lt $max_retries ] && [ $complete -eq 0 ]; do
             sleep $retry_delay
             exit 1
         fi
-    "]; 
+    "; 
     then
         complete=1  
     else
