@@ -6,7 +6,10 @@ The purpose of this script is to enable transfer of directories/files to/from sh
 
 ```mermaid
 sequenceDiagram
+    participant WorkerNode
+    participant LoginNode
     participant SharedArea
+    participant WorkerDirectory
     WorkerNode->>LoginNode: 1.SSH Connection
     activate LoginNode
     LoginNode->>SharedArea: 2.Initiate rsync
