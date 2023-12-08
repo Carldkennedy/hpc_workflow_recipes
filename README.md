@@ -74,5 +74,5 @@ If you want to copy the source directory itself into the destination, without me
 
 Trailing Slash in Destination Directory: copies the source into that directory, preserving its name.
 
-If you don't want the source directory to be included in the destination, use a destination path without a trailing slash: rsync source/ destination
+If you don't want the source directory to be included in the destination, use a destination path without a trailing slash: `rsync source/ destination`
 
