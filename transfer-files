@@ -33,12 +33,14 @@ DESTINATION=$2
 if [[ $DESTINATION == /shared* ]]; then
     # can't apply linux permission to ACL permissions
     OPTIONS="--no-perms"
+else
+    OPTIONS=""
 fi
 
 # Function to check if a login node is available
 check_login_node() {
     local login_node=$1
-    ssh -q $login_node exit
+    ssh -q "$login_node" exit
     return $?
 }
 
@@ -47,10 +49,10 @@ login_node1=stanage-login1.shef.ac.uk
 login_node2=stanage-login2.shef.ac.uk
 
 # Create an array of login nodes
-login_nodes=($login_node1 $login_node2)
+login_nodes=("$login_node1" "$login_node2")
 
 # Shuffle the array (balancing the load)
-shuffled_nodes=($(shuf -e "${login_nodes[@]}"))
+shuffled_nodes=("$(shuf -e "${login_nodes[@]}")")
 
 # Loop through the shuffled nodes and check their availability
 for node in "${shuffled_nodes[@]}"; do
@@ -67,8 +69,8 @@ retry_delay=10
 complete=0
 
 while [ $retries -lt $max_retries ] && [ $complete -eq 0 ]; do
-    ssh $login_node "
-        rsync -avp ${OPTIONS} '${SOURCE}' '${DESTINATION}' 2>&1
+    if ssh "$login_node" "
+        rsync -avp ${OPTIONS} ${SOURCE} ${DESTINATION} 2>&1
         exit_status=\$?
 
         if [ \$exit_status -eq 0 ]; then
@@ -79,9 +81,8 @@ while [ $retries -lt $max_retries ] && [ $complete -eq 0 ]; do
             sleep $retry_delay
             exit 1
         fi
-    "
-
-    if [ $? -eq 0 ]; then
+    "; 
+    then
         complete=1  
     else
         ((retries++))
