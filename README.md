@@ -37,7 +37,7 @@ Recommend assigning directories to variables. For example, create a **setup.sh**
 ```shell
 #!/bin/bash
 shared='/shared/path/to/directory/'
-working_dir='/mnt/parscartch/users/${USER}/'
+working_dir='/mnt/parscratch/users/${USER}/'
 ```
 These variables are used in the examples below.
 
