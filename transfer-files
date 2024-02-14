@@ -52,10 +52,10 @@ login_node2=stanage-login2.shef.ac.uk
 login_nodes=("$login_node1" "$login_node2")
 
 # Shuffle the array (balancing the load)
-shuffled_nodes=("$(shuf -e "${login_nodes[@]}")")
+shuffled_nodes=$(shuf -e "${login_nodes[@]}")
 
 # Loop through the shuffled nodes and check their availability
-for node in "${shuffled_nodes[@]}"; do
+for node in ${shuffled_nodes[@]}; do
     if check_login_node "$node"; then
         login_node="$node"
         break
