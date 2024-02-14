@@ -75,9 +75,11 @@ sbatch --time=00:20:00 transfer-files ${shared}/some/path/ ${working_dir}/some/p
 
 Trailing Slash in Source Directory: copies the contents of the source directory, but not the directory itself, into the destination.
 
-If you want to copy the source directory itself into the destination, without merging its contents, you should omit the trailing slash: rsync source destination.
+If you want to copy the source directory itself into the destination, without merging its contents, you should omit the trailing slash:
+`rsync source destination`.
 
 Trailing Slash in Destination Directory: copies the source into that directory, preserving its name.
 
-If you don't want the source directory to be included in the destination, use a destination path without a trailing slash: `rsync source/ destination`
+If you don't want the source directory to be included in the destination, use a destination path without a trailing slash:
+`rsync source/ destination`.
 
