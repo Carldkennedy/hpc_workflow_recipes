@@ -45,8 +45,8 @@ check_login_node() {
 }
 
 # Define login nodes
-login_node1=stanage-login1.shef.ac.uk
-login_node2=stanage-login2.shef.ac.uk
+login_node1=login1
+login_node2=login2
 
 # Create an array of login nodes
 login_nodes=("$login_node1" "$login_node2")
