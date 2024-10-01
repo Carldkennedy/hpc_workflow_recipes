@@ -44,6 +44,13 @@ check_login_node() {
     return $?
 }
 
+# Function to check if shared area is mounted
+check_shared_area() {
+    local login_node=$1
+    ssh -q "$login_node" "/bin/bash -c 'if mountpoint -q ${DESTINATION}; then exit 0; else exit 1; fi'"
+    return $?
+}
+
 # Define login nodes
 login_node1=login1
 login_node2=login2
@@ -56,11 +63,16 @@ shuffled_nodes=$(shuf -e "${login_nodes[@]}")
 
 # Loop through the shuffled nodes and check their availability
 for node in ${shuffled_nodes[@]}; do
-    if check_login_node "$node"; then
+    if check_login_node "$node" && check_shared_area "$node"; then
         login_node="$node"
         break
     fi
 done
+
+if [ -z "$login_node" ]; then
+    echo "ERROR: No login node with the shared area available."
+    exit 1
+fi
 
 # SSH to the selected login node
 retries=0
