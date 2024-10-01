@@ -33,8 +33,10 @@ DESTINATION=$2
 if [[ $DESTINATION == /shared* ]]; then
     # can't apply linux permission to ACL permissions
     OPTIONS="--no-perms"
+    SHARED=$DESTINATION
 else
     OPTIONS=""
+    SHARED=$SOURCE
 fi
 
 # Function to check if a login node is available
@@ -47,7 +49,7 @@ check_login_node() {
 # Function to check if shared area is mounted
 check_shared_area() {
     local login_node=$1
-    ssh -q "$login_node" "/bin/bash -c 'if mountpoint -q ${DESTINATION}; then exit 0; else exit 1; fi'"
+    ssh -q "$login_node" "/bin/bash -c 'if mountpoint -q ${SHARED}; then exit 0; else exit 1; fi'"
     return $?
 }
 
