@@ -38,19 +38,19 @@ else
     OPTIONS=""
     SHARED=$SOURCE
 fi
+SHARED=$(echo "$SHARED" | cut -d'/' -f1-3)
 
 # Function to check if a login node is available
 check_login_node() {
     local login_node=$1
     ssh -q "$login_node" exit
-    return $?
 }
 
 # Function to check if shared area is mounted
 check_shared_area() {
     local login_node=$1
-    ssh -q "$login_node" "/bin/bash -c 'if mountpoint -q ${SHARED}; then exit 0; else exit 1; fi'"
-    return $?
+    SHARED_REAL=$(ssh -q "$login_node" "readlink -f ${SHARED}")
+    ssh -q "$login_node" "/bin/bash -c 'if mountpoint -q ${SHARED_REAL}'"
 }
 
 # Define login nodes
