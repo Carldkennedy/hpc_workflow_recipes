@@ -33,15 +33,24 @@ DESTINATION=$2
 if [[ $DESTINATION == /shared* ]]; then
     # can't apply linux permission to ACL permissions
     OPTIONS="--no-perms"
+    SHARED=$DESTINATION
 else
     OPTIONS=""
+    SHARED=$SOURCE
 fi
+SHARED=$(echo "$SHARED" | cut -d'/' -f1-3)
 
 # Function to check if a login node is available
 check_login_node() {
     local login_node=$1
     ssh -q "$login_node" exit
-    return $?
+}
+
+# Function to check if shared area is mounted
+check_shared_area() {
+    local login_node=$1
+    SHARED_REAL=$(ssh -q "$login_node" "readlink -f ${SHARED}")
+    ssh -q "$login_node" "/bin/bash -c 'mountpoint -q ${SHARED_REAL}'"
 }
 
 # Define login nodes
@@ -56,11 +65,16 @@ shuffled_nodes=$(shuf -e "${login_nodes[@]}")
 
 # Loop through the shuffled nodes and check their availability
 for node in ${shuffled_nodes[@]}; do
-    if check_login_node "$node"; then
+    if check_login_node "$node" && check_shared_area "$node"; then
         login_node="$node"
         break
     fi
 done
+
+if [ -z "$login_node" ]; then
+    echo "ERROR: No login node with the shared area available."
+    exit 1
+fi
 
 # SSH to the selected login node
 retries=0
