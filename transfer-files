@@ -50,7 +50,7 @@ check_login_node() {
 check_shared_area() {
     local login_node=$1
     SHARED_REAL=$(ssh -q "$login_node" "readlink -f ${SHARED}")
-    ssh -q "$login_node" "/bin/bash -c 'if mountpoint -q ${SHARED_REAL}'"
+    ssh -q "$login_node" "/bin/bash -c 'mountpoint -q ${SHARED_REAL}'"
 }
 
 # Define login nodes
