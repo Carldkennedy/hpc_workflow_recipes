@@ -31,8 +31,8 @@ SOURCE=$1
 DESTINATION=$2
 
 if [[ $DESTINATION == /shared* ]]; then
-    # can't apply linux permission to ACL permissions
-    OPTIONS="--no-perms"
+    # can't apply Linux permissions or group ownership to ACL-controlled shared areas
+    OPTIONS="--no-perms --no-group"
     SHARED=$DESTINATION
 else
     OPTIONS=""
