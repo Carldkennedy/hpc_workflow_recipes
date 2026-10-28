@@ -54,8 +54,8 @@ check_shared_area() {
 }
 
 # Define login nodes
-login_node1=login1
-login_node2=login2
+login_node1=logina
+login_node2=loginb
 
 # Create an array of login nodes
 login_nodes=("$login_node1" "$login_node2")
