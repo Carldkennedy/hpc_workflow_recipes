@@ -5,104 +5,107 @@
 #SBATCH --time=00:10:00
 #SBATCH --output=data_staging_%j.out
 
-# SBATCH directives are effective only when submitted with 'sbatch'; 
-# ignored in direct shell execution.
+# SBATCH directives apply only when submitted with sbatch.
 
-SCRIPT_NAME=$(basename "$0")
-# Function to display usage information
+SCRIPT_NAME=${0##*/}
+
 show_usage() {
     echo "Usage: $SCRIPT_NAME SOURCE DESTINATION"
-    echo -e "Example: $SCRIPT_NAME /path/to/source /path/to/destination/\n"
+    echo "Example: $SCRIPT_NAME /path/to/source /path/to/destination/"
     exit 1
 }
-# Check we're on a worker node 
-if [ -z "$SLURM_NODELIST" ]; then 
-	echo "Error: This script should not be run on a login node." 
-	exit 1 
+
+# Ensure the script is running as a Slurm job on a worker node.
+if [[ -z $SLURM_NODELIST ]]; then
+    echo "ERROR: This script must not be run on a login node."
+    exit 1
 fi
 
-# Check number of arguments is 2
-if [ $# -ne 2 ]; then
-    echo -e "Error: Two arguments are required.\n"
+if [[ $# -ne 2 ]]; then
+    echo "ERROR: Two arguments are required."
     show_usage
 fi
 
 SOURCE=$1
 DESTINATION=$2
+RSYNC_OPTIONS=(-avp --partial-dir=.rsync-partial)
 
 if [[ $DESTINATION == /shared* ]]; then
-    # can't apply Linux permissions or group ownership to ACL-controlled shared areas
-    OPTIONS="--no-perms --no-group"
+    # ACL-controlled shared areas do not support normal Linux ownership.
+    RSYNC_OPTIONS+=(--no-perms --no-group)
     SHARED=$DESTINATION
 else
-    OPTIONS=""
     SHARED=$SOURCE
 fi
-SHARED=$(echo "$SHARED" | cut -d'/' -f1-3)
 
-# Function to check if a login node is available
+# Extract the shared-area mount point, for example /shared/project_name.
+SHARED=$(echo "$SHARED" | cut -d/ -f1-3)
+
+SSH_OPTIONS=(
+    -o BatchMode=yes
+    -o ConnectTimeout=10
+    -o ServerAliveInterval=10
+    -o ServerAliveCountMax=3
+)
+
 check_login_node() {
     local login_node=$1
-    ssh -q "$login_node" exit
+
+    ssh -q "${SSH_OPTIONS[@]}" "$login_node" exit
 }
 
-# Function to check if shared area is mounted
 check_shared_area() {
     local login_node=$1
-    SHARED_REAL=$(ssh -q "$login_node" "readlink -f ${SHARED}")
-    ssh -q "$login_node" "/bin/bash -c 'mountpoint -q ${SHARED_REAL}'"
+    local shared_real
+    local shared_quoted
+    local shared_real_quoted
+
+    printf -v shared_quoted '%q' "$SHARED"
+
+    shared_real=$(
+        ssh -q "${SSH_OPTIONS[@]}" "$login_node" \
+            "readlink -f -- $shared_quoted"
+    ) || return 1
+
+    [[ -n $shared_real ]] || return 1
+
+    printf -v shared_real_quoted '%q' "$shared_real"
+
+    ssh -q "${SSH_OPTIONS[@]}" "$login_node" \
+        "mountpoint -q -- $shared_real_quoted"
 }
 
-# Define login nodes
-login_node1=logina
-login_node2=loginb
+# Safely quote the rsync command for execution on a login node.
+printf -v RSYNC_COMMAND '%q ' \
+    rsync "${RSYNC_OPTIONS[@]}" "$SOURCE" "$DESTINATION"
 
-# Create an array of login nodes
-login_nodes=("$login_node1" "$login_node2")
+# Randomise the initial login node, then alternate nodes after failures.
+mapfile -t login_nodes < <(shuf -e logina loginb)
 
-# Shuffle the array (balancing the load)
-shuffled_nodes=$(shuf -e "${login_nodes[@]}")
-
-# Loop through the shuffled nodes and check their availability
-for node in ${shuffled_nodes[@]}; do
-    if check_login_node "$node" && check_shared_area "$node"; then
-        login_node="$node"
-        break
-    fi
-done
-
-if [ -z "$login_node" ]; then
-    echo "ERROR: No login node with the shared area available."
-    exit 1
-fi
-
-# SSH to the selected login node
 retries=0
 max_retries=3
 retry_delay=10
-complete=0
 
-while [ $retries -lt $max_retries ] && [ $complete -eq 0 ]; do
-    if ssh "$login_node" "
-        rsync -avp ${OPTIONS} ${SOURCE} ${DESTINATION} 2>&1
-        exit_status=\$?
+while (( retries < max_retries )); do
+    login_node=${login_nodes[$((retries % ${#login_nodes[@]}))]}
 
-        if [ \$exit_status -eq 0 ]; then
-            echo 'Rsync operation completed successfully.'
-            exit 0
-        else
-            echo 'Rsync operation failed. Retrying in $retry_delay seconds...'
-            sleep $retry_delay
-            exit 1
-        fi
-    "; 
-    then
-        complete=1  
-    else
-        ((retries++))
-        if [ $retries -eq $max_retries ]; then
-            echo \"ERROR: Rsync operation failed after $max_retries retries.\"
-            exit 1
-        fi
+    echo "Attempt $((retries + 1)) of $max_retries using $login_node."
+
+    if check_login_node "$login_node" &&
+       check_shared_area "$login_node" &&
+       ssh "${SSH_OPTIONS[@]}" "$login_node" "$RSYNC_COMMAND"; then
+        echo "Rsync completed successfully using $login_node."
+        exit 0
+    fi
+
+    echo "Transfer through $login_node failed."
+    ((retries++))
+
+    if (( retries < max_retries )); then
+        echo "Retrying through the other login node in $retry_delay seconds."
+        sleep "$retry_delay"
     fi
 done
+
+echo "ERROR: Rsync failed after $max_retries attempts."
+exit 1
